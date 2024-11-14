@@ -14,13 +14,14 @@ import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
-    var timerTextView = findViewById<TextView>(R.id.textView)
+    lateinit var timerTextView: TextView
 
     lateinit var timerBinder: TimerService.TimerBinder
     var isConnected = false
 
     val timerHandler = Handler(Looper.getMainLooper())
     {
+        timerTextView = findViewById(R.id.textView)
         timerTextView.text = it.what.toString()
 
         true
@@ -49,17 +50,34 @@ class MainActivity : AppCompatActivity() {
                 connection,
                 BIND_AUTO_CREATE
             )
-        }
 
-        findViewById<View>(R.id.startButton).setOnClickListener {
             if(isConnected)
             {
                 timerBinder.start(100)
+
             }
+
+            if(isConnected)
+            {
+                if(timerBinder.isRunning)
+                {
+                    timerBinder.pause()
+                }
+            }
+
+
         }
         
         findViewById<Button>(R.id.stopButton).setOnClickListener {
-
+            if(isConnected)
+            {
+                timerBinder.stop()
+            }
         }
+    }
+
+    override fun onDestroy() {
+        unbindService(connection)
+        super.onDestroy()
     }
 }
